@@ -679,7 +679,7 @@ func (c *clusterCache) sync(ctx context.Context) error {
 				return listPager.EachListItem(ctx, metav1.ListOptions{}, func(obj runtime.Object) error {
 					if un, ok := obj.(*unstructured.Unstructured); !ok {
 						return fmt.Errorf("object %s/%s has an unexpected type", un.GroupVersionKind().String(), un.GetName())
-					} else {
+					} else if !c.settings.ResourcesFilter.IsExcludedObject(un) {
 						lock.Lock()
 						c.setNode(c.newResource(un))
 						lock.Unlock()

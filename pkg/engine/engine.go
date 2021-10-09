@@ -120,7 +120,7 @@ func (e *gitOpsEngine) Sync(ctx context.Context,
 
 	for {
 		syncCtx.Sync(ctx)
-		phase, message, resources := syncCtx.GetState()
+		phase, message, resources := syncCtx.GetState(true)
 		if phase.Completed() {
 			if phase == common.OperationError {
 				err = fmt.Errorf("sync operation failed: %s", message)

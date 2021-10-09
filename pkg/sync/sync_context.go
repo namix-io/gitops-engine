@@ -54,7 +54,7 @@ type SyncContext interface {
 	// Executes next synchronization step and updates operation status.
 	Sync(ctx context.Context)
 	// Returns current sync operation state and information about resources synchronized so far.
-	GetState() (common.OperationPhase, string, []common.ResourceSyncResult)
+	GetState(ignoreUnchanged bool) (common.OperationPhase, string, []common.ResourceSyncResult)
 }
 
 // SyncOpt is a callback that update sync operation settings
@@ -539,9 +539,13 @@ func (sc *syncContext) deleteHooks(ctx context.Context, hooksPendingDeletion syn
 	}
 }
 
-func (sc *syncContext) GetState() (common.OperationPhase, string, []common.ResourceSyncResult) {
+func (sc *syncContext) GetState(ignoreUnchanged bool) (common.OperationPhase, string, []common.ResourceSyncResult) {
 	var resourceRes []common.ResourceSyncResult
 	for _, v := range sc.syncRes {
+		if ignoreUnchanged && strings.Contains(v.Message, " unchanged") {
+			continue
+		}
+
 		resourceRes = append(resourceRes, v)
 	}
 	sort.Slice(resourceRes, func(i, j int) bool {
